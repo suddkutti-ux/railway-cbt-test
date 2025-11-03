@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Railway CBT Test</title>
+<style>
+  body {font-family: Arial, sans-serif; background: #eef4ff; color: #111; padding: 20px;}
+  .container {max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+  h1 {text-align: center; color: #0d47a1;}
+  .question {margin-bottom: 25px; padding: 15px; border: 1px solid #d0e0ff; border-radius: 8px; background: #f8fbff;}
+  .question h3 {margin-top: 0;}
+  label {display: block; margin: 6px 0; padding: 6px; border-radius: 6px; cursor: pointer; border: 1px solid transparent;}
+  label:hover {background: #eaf2ff;}
+  input[type="radio"] {margin-right: 8px;}
+  button {padding: 10px 20px; background: #1976d2; color: #fff; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;}
+  button:hover {background: #0d47a1;}
+  .correct {background: #d4edda !important; border-color: #28a745 !important;}
+  .incorrect {background: #f8d7da !important; border-color: #dc3545 !important;}
+  .feedback {margin-top: 6px; font-weight: bold;}
+  .feedback.correct {color: #28a745;}
+  .feedback.incorrect {color: #dc3545;}
+  #scoreBox {text-align: center; font-size: 18px; margin-top: 20px; font-weight: bold;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>TTM-TCD Railway CBT Test</h1>
+  <form id="cbtForm"></form>
+  <div style="text-align:center;">
+    <button type="button" onclick="submitTest()">Submit Test</button>
+    <button type="button" onclick="resetTest()">Retake Test</button>
+  </div>
+  <div id="scoreBox"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { q: "General Rules are framed by?", options: ["Government of India", "Authorized Officer", "General Manager", "PCOM"], answer: 0 },
+  { q: "Approved special instructions are issued or approved by?", options: ["PCOM", "Authorized Officer", "CRS", "Railway Board"], answer: 0 },
+  { q: "A fixed stop signal of a station controlling the entry of trains into next block section is?", options: ["FSS", "LSS", "Outer", "Home"], answer: 3 },
+  { q: "This includes a train, vehicle or obstacle on or fouling a line, or any condition which is dangerous to trains.", options: ["Shunting", "Connection", "Communication", "Obstruction"], answer: 3 },
+  { q: "Special instructions are issued by?", options: ["COM/G", "PCSO", "Authorised Officer", "Railway Board"], answer: 2 },
+  { q: "At a Block station the Station Limits are between?", options: ["Two Outermost Signals", "Two outer signals", "Two FSS", "Two LSS"], answer: 0 },
+  { q: "On Double line class ‘B’ station Multiple Aspect Signalling, station section lies between?", options: ["Outermost facing points to LSS", "BSLB to LSS", "Either A or B", "None of the above"], answer: 2 },
+  { q: "On single line ‘B’ class MAS station, Station section lies between?", options: ["Two Advance Starters", "Two SLBs", "Two outermost points", "Any one of the above"], answer: 3 },
+  { q: "The system adopted for the working of trains on any portion of a railway is known as?", options: ["System of controlling", "Direction of traffic", "System of working", "None of these"], answer: 2 },
+  { q: "No Railway Servant directly connected with the working of trains shall take or use any alcoholic drink, sedative, narcotic or stimulant drug or preparation before duty within how many hours?", options: ["6 hours", "8 hours", "10 hours", "12 hours"], answer: 1 },
+  { q: "Whenever two yellow lights are exhibited in Distant signal the Aspect is?", options: ["Caution", "Attention", "Stop", "Proceed"], answer: 0 },
+  { q: "Whenever one yellow light is exhibited in Distant signal the Aspect is?", options: ["Caution", "Attention", "Proceed Slow", "Proceed"], answer: 0 },
+  { q: "The indication of the Distant signal in Caution Aspect is?", options: ["Stop dead", "Proceed", "Proceed and be prepared to pass the next stop signal at a restrictive speed", "Proceed and be prepared to stop at the next stop signal"], answer: 2 },
+  { q: "In single distant area, if Distant signal is showing proceed aspect, it means?", options: ["Stop dead", "Train admitted on loop line", "Train run through via main line; block section ahead free", "Train admitted on main line to stop at station"], answer: 2 }
+];
+
+const form = document.getElementById('cbtForm');
+
+// Generate questions
+QUESTIONS.forEach((item, i) => {
+  const div = document.createElement('div');
+  div.className = 'question';
+  div.dataset.index = i;
+
+  let html = `<h3>Q${i + 1}. ${item.q}</h3>`;
+  item.options.forEach((opt, j) => {
+    html += `<label><input type='radio' name='q${i}' value='${j}'> ${opt}</label>`;
+  });
+  div.innerHTML = html;
+  form.appendChild(div);
+});
+
+function submitTest() {
+  let score = 0;
+  document.querySelectorAll('.feedback').forEach(f => f.remove());
+  document.querySelectorAll('.question').forEach(q => {
+    q.querySelectorAll('label').forEach(l => l.classList.remove('correct', 'incorrect'));
+  });
+
+  QUESTIONS.forEach((item, i) => {
+    const selected = document.querySelector(`input[name='q${i}']:checked`);
+    const qDiv = document.querySelector(`.question[data-index='${i}']`);
+    let feedback = document.createElement('div');
+    feedback.classList.add('feedback');
+
+    if (selected) {
+      const selectedVal = parseInt(selected.value);
+      if (selectedVal === item.answer) {
+        score++;
+        selected.parentElement.classList.add('correct');
+        feedback.textContent = '✅ Correct';
+        feedback.classList.add('correct');
+      } else {
+        selected.parentElement.classList.add('incorrect');
+        qDiv.querySelectorAll('label')[item.answer].classList.add('correct');
+        feedback.textContent = `❌ Incorrect (Correct: ${item.options[item.answer]})`;
+        feedback.classList.add('incorrect');
+      }
+    } else {
+      qDiv.querySelectorAll('label')[item.answer].classList.add('correct');
+      feedback.textContent = `⚠️ Not answered (Correct: ${item.options[item.answer]})`;
+      feedback.classList.add('incorrect');
+    }
+    qDiv.appendChild(feedback);
+  });
+
+  const scoreBox = document.getElementById('scoreBox');
+  scoreBox.textContent = `Your Score: ${score} / ${QUESTIONS.length}`;
+
+  // Disable further selection
+  document.querySelectorAll('input[type=radio]').forEach(inp => inp.disabled = true);
+}
+
+function resetTest() {
+  document.getElementById('scoreBox').textContent = '';
+  document.getElementById('cbtForm').innerHTML = '';
+  QUESTIONS.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.dataset.index = i;
+
+    let html = `<h3>Q${i + 1}. ${item.q}</h3>`;
+    item.options.forEach((opt, j) => {
+      html += `<label><input type='radio' name='q${i}' value='${j}'> ${opt}</label>`;
+    });
+    div.innerHTML = html;
+    form.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
